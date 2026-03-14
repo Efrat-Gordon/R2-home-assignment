@@ -56,9 +56,17 @@ async fn main() {
         .await
         .expect("Failed to run migrations");
 
+    let redis_url = std::env::var("REDIS_URL").expect("REDIS_URL must be set");
+    let redis_client = redis::Client::open(redis_url).expect("Invalid REDIS_URL");
+    let redis = redis_client
+        .get_multiplexed_tokio_connection()
+        .await
+        .expect("Failed to connect to Redis");
+
     let state = AppState {
         db,
         tokens: Arc::new(Mutex::new(HashMap::new())),
+        redis,
     };
 
     let app = Router::new()

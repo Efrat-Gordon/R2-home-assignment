@@ -1,4 +1,11 @@
 services:
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
   db:
     image: postgres:17-alpine
     environment:
@@ -28,5 +35,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     environment:
       DATABASE_URL: postgres://r2:r2@db:5432/r2
+      REDIS_URL: redis://redis:6379
