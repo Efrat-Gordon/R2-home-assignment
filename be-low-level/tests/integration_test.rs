@@ -7,8 +7,7 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
 async fn make_server(db: PgPool) -> TestServer {
-    let redis_url =
-        std::env::var("REDIS_URL").unwrap_or_else(|_| "redis://127.0.0.1/".to_string());
+    let redis_url = std::env::var("REDIS_URL").unwrap_or_else(|_| "redis://127.0.0.1/".to_string());
     let redis_client = redis::Client::open(redis_url).unwrap();
     let redis = redis_client
         .get_multiplexed_tokio_connection()

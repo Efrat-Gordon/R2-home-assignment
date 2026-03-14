@@ -4,9 +4,7 @@ use argon2::{
 };
 use sqlx::PgPool;
 
-const SEED_USERS: &[(&str, &str)] = &[
-    ("a@gmail.com", "1234")
-];
+const SEED_USERS: &[(&str, &str)] = &[("a@gmail.com", "1234")];
 
 pub async fn seed_users(db: &PgPool) {
     let argon2 = Argon2::default();
@@ -16,13 +14,11 @@ pub async fn seed_users(db: &PgPool) {
             .hash_password(password.as_bytes(), &salt)
             .expect("Failed to hash password")
             .to_string();
-        sqlx::query(
-            "INSERT INTO users (email, password) VALUES ($1, $2) ON CONFLICT DO NOTHING",
-        )
-        .bind(email)
-        .bind(hash)
-        .execute(db)
-        .await
-        .expect("Failed to seed user");
+        sqlx::query("INSERT INTO users (email, password) VALUES ($1, $2) ON CONFLICT DO NOTHING")
+            .bind(email)
+            .bind(hash)
+            .execute(db)
+            .await
+            .expect("Failed to seed user");
     }
 }

@@ -14,7 +14,10 @@ pub async fn get_wins(conn: &mut MultiplexedConnection) -> Result<i64, AppError>
 
 pub async fn increment_wins(conn: &mut MultiplexedConnection) -> Result<(), AppError> {
     let key = wins_key();
-    let count: i64 = conn.incr(&key, 1i64).await.map_err(|_| AppError::Internal)?;
+    let count: i64 = conn
+        .incr(&key, 1i64)
+        .await
+        .map_err(|_| AppError::Internal)?;
     if count == 1 {
         // First win today — set a 48-hour TTL so the key auto-expires
         let _: i64 = conn
@@ -24,4 +27,3 @@ pub async fn increment_wins(conn: &mut MultiplexedConnection) -> Result<(), AppE
     }
     Ok(())
 }
-
