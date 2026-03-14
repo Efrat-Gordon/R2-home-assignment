@@ -10,6 +10,15 @@ use crate::{
     state::AppState,
 };
 
+#[utoipa::path(
+    post,
+    path = "/api/try_luck",
+    responses(
+        (status = 200, description = "Luck result", body = LuckResponse),
+        (status = 401, description = "Not authenticated or invalid token"),
+    ),
+    security(("bearer_auth" = []))
+)]
 pub async fn try_luck(
     State(state): State<AppState>,
     AuthenticatedToken { email, .. }: AuthenticatedToken,

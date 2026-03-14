@@ -2,6 +2,8 @@ FROM rust:1.88-slim AS builder
 
 WORKDIR /app
 
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
 # Copy manifest and migrations, then build a dummy binary to cache dependencies
 COPY Cargo.toml ./
 COPY migrations ./migrations
