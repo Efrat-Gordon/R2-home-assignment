@@ -1,3 +1,4 @@
+use argon2::{Argon2, PasswordHash, PasswordVerifier};
 use axum::{extract::State, Json};
 use uuid::Uuid;
 
@@ -21,13 +22,19 @@ pub async fn login(
     State(state): State<AppState>,
     Json(body): Json<LoginRequest>,
 ) -> Result<Json<TokenResponse>, AppError> {
-    let password = user::get_password(&state.db, &body.email).await?;
+    let hash = user::get_password(&state.db, &body.email)
+        .await?
+        .ok_or(AppError::InvalidCredentials)?;
 
-    let valid = password.map(|pwd| pwd == body.password).unwrap_or(false);
-
-    if !valid {
-        return Err(AppError::InvalidCredentials);
-    }
+    let password = body.password.clone();
+    tokio::task::spawn_blocking(move || -> Result<(), AppError> {
+        let parsed = PasswordHash::new(&hash).map_err(|_| AppError::Internal)?;
+        Argon2::default()
+            .verify_password(password.as_bytes(), &parsed)
+            .map_err(|_| AppError::InvalidCredentials)
+    })
+    .await
+    .map_err(|_| AppError::Internal)??;
 
     let token = Uuid::new_v4().to_string();
     state

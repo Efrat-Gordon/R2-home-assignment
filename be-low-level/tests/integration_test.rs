@@ -1,6 +1,6 @@
 use axum::{routing::post, Router};
 use axum_test::TestServer;
-use be_low_level::{handlers, state::AppState};
+use be_low_level::{handlers, seeding, state::AppState};
 use serde_json::json;
 use sqlx::PgPool;
 use std::collections::HashMap;
@@ -14,6 +14,8 @@ async fn make_server(db: PgPool) -> TestServer {
         .get_multiplexed_tokio_connection()
         .await
         .unwrap();
+
+    seeding::seed_users(&db).await;
 
     let state = AppState {
         db,

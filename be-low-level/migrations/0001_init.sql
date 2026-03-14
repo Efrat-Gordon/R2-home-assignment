@@ -10,7 +10,3 @@ CREATE TABLE IF NOT EXISTS win_logs (
 );
 
 CREATE INDEX IF NOT EXISTS idx_win_logs_created_at ON win_logs (created_at);
-
-INSERT INTO users (email, password) VALUES
-    ('a@gmail.com',   '1234')
-ON CONFLICT DO NOTHING;

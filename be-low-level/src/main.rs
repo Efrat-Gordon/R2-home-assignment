@@ -1,5 +1,5 @@
 use axum::{routing::post, Router};
-use be_low_level::{config, handlers, models, state::AppState};
+use be_low_level::{config, handlers, models, seeding, state::AppState};
 use sqlx::postgres::PgPoolOptions;
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
@@ -55,6 +55,8 @@ async fn main() {
         .run(&db)
         .await
         .expect("Failed to run migrations");
+
+    seeding::seed_users(&db).await;
 
     let redis_url = std::env::var("REDIS_URL").expect("REDIS_URL must be set");
     let redis_client = redis::Client::open(redis_url).expect("Invalid REDIS_URL");

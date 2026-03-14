@@ -1,5 +1,6 @@
 pub mod auth;
 pub mod cache;
+pub mod seeding;
 pub mod config;
 pub mod error;
 pub mod handlers;
