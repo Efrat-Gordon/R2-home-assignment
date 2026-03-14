@@ -2,11 +2,7 @@ use axum::{extract::State, Json};
 use rand::Rng;
 
 use crate::{
-    auth::AuthenticatedToken,
-    config,
-    error::AppError,
-    models::LuckResponse,
-    repository::wins,
+    auth::AuthenticatedToken, config, error::AppError, models::LuckResponse, repository::wins,
     state::AppState,
 };
 

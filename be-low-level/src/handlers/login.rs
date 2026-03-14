@@ -30,7 +30,11 @@ pub async fn login(
     }
 
     let token = Uuid::new_v4().to_string();
-    state.tokens.lock().unwrap().insert(token.clone(), body.email);
+    state
+        .tokens
+        .lock()
+        .unwrap()
+        .insert(token.clone(), body.email);
 
     Ok(Json(TokenResponse { token }))
 }
