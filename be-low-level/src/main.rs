@@ -1,12 +1,5 @@
-mod auth;
-mod config;
-mod error;
-mod handlers;
-mod models;
-mod state;
-
+use be_low_level::{config, handlers, state::AppState};
 use axum::{routing::post, Router};
-use state::AppState;
 
 #[tokio::main]
 async fn main() {

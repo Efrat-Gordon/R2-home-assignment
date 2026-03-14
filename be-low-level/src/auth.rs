@@ -1,6 +1,6 @@
 use axum::{
     async_trait,
-    extract::{FromRequestParts, State},
+    extract::FromRequestParts,
     http::request::Parts,
 };
 
@@ -16,7 +16,7 @@ impl FromRequestParts<AppState> for AuthenticatedToken {
 
     async fn from_request_parts(
         parts: &mut Parts,
-        State(state): &State<AppState>,
+        state: &AppState,
     ) -> Result<Self, Self::Rejection> {
         let token = parts
             .headers
