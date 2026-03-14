@@ -1,9 +1,28 @@
-use be_low_level::{config, handlers, state::AppState};
 use axum::{routing::post, Router};
+use be_low_level::{config, handlers, state::AppState};
+use sqlx::postgres::PgPoolOptions;
+use std::collections::HashSet;
+use std::sync::{Arc, Mutex};
 
 #[tokio::main]
 async fn main() {
-    let state = AppState::new();
+    let db_url = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+
+    let db = PgPoolOptions::new()
+        .max_connections(5)
+        .connect(&db_url)
+        .await
+        .expect("Failed to connect to database");
+
+    sqlx::migrate!("./migrations")
+        .run(&db)
+        .await
+        .expect("Failed to run migrations");
+
+    let state = AppState {
+        db,
+        tokens: Arc::new(Mutex::new(HashSet::new())),
+    };
 
     let app = Router::new()
         .route("/api/login", post(handlers::login::login))

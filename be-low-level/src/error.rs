@@ -5,6 +5,7 @@ pub enum AppError {
     InvalidCredentials,
     NotAuthenticated,
     AccessDenied,
+    Internal,
 }
 
 impl IntoResponse for AppError {
@@ -21,6 +22,10 @@ impl IntoResponse for AppError {
             AppError::AccessDenied => (
                 StatusCode::UNAUTHORIZED,
                 "Access denied due to invalid credentials.",
+            ),
+            AppError::Internal => (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "An internal error occurred.",
             ),
         };
 

@@ -6,9 +6,12 @@ use axum::{
 
 use crate::{error::AppError, state::AppState};
 
-/// A validated bearer token extracted from the `Authorization` header.
+/// A validated bearer token. Carries both the token and the owner's email.
 /// Using this as an extractor in a handler guarantees the request is authenticated.
-pub struct AuthenticatedToken(pub String);
+pub struct AuthenticatedToken {
+    pub token: String,
+    pub email: String,
+}
 
 #[async_trait]
 impl FromRequestParts<AppState> for AuthenticatedToken {
@@ -25,10 +28,14 @@ impl FromRequestParts<AppState> for AuthenticatedToken {
             .and_then(|v| v.strip_prefix("Bearer ").map(str::to_string))
             .ok_or(AppError::NotAuthenticated)?;
 
-        if !state.tokens.lock().unwrap().contains(&token) {
-            return Err(AppError::AccessDenied);
-        }
+        let email = state
+            .tokens
+            .lock()
+            .unwrap()
+            .get(&token)
+            .cloned()
+            .ok_or(AppError::AccessDenied)?;
 
-        Ok(AuthenticatedToken(token))
+        Ok(AuthenticatedToken { token, email })
     }
 }

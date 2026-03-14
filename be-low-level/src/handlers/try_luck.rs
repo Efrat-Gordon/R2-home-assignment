@@ -1,5 +1,4 @@
 use axum::{extract::State, Json};
-use chrono::Local;
 use rand::Rng;
 
 use crate::{
@@ -7,23 +6,17 @@ use crate::{
     config,
     error::AppError,
     models::LuckResponse,
+    repository::wins,
     state::AppState,
 };
 
 pub async fn try_luck(
     State(state): State<AppState>,
-    AuthenticatedToken(_): AuthenticatedToken,
+    AuthenticatedToken { email, .. }: AuthenticatedToken,
 ) -> Result<Json<LuckResponse>, AppError> {
-    let mut daily = state.daily_wins.lock().unwrap();
+    let daily_wins = wins::count_today(&state.db).await?;
 
-    // Reset the counter when the day rolls over
-    let today = Local::now().date_naive();
-    if daily.date != today {
-        daily.date = today;
-        daily.count = 0;
-    }
-
-    let probability = if daily.count >= config::DAILY_WIN_THRESHOLD {
+    let probability = if daily_wins >= config::DAILY_WIN_THRESHOLD as i64 {
         config::WIN_PROBABILITY_REDUCED
     } else {
         config::WIN_PROBABILITY_NORMAL
@@ -32,7 +25,7 @@ pub async fn try_luck(
     let win = rand::thread_rng().gen::<f64>() < probability;
 
     if win {
-        daily.count += 1;
+        wins::log_win(&state.db, &email).await?;
     }
 
     Ok(Json(LuckResponse { win }))

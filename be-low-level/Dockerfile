@@ -1,9 +1,10 @@
-FROM rust:1.85-slim AS builder
+FROM rust:1.88-slim AS builder
 
 WORKDIR /app
 
-# Copy manifest and build a dummy binary to cache dependencies
+# Copy manifest and migrations, then build a dummy binary to cache dependencies
 COPY Cargo.toml ./
+COPY migrations ./migrations
 RUN mkdir src && echo "fn main() {}" > src/main.rs
 RUN cargo build --release
 RUN rm src/main.rs

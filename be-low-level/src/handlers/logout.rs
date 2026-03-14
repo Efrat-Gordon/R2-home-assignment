@@ -5,7 +5,7 @@ use crate::{auth::AuthenticatedToken, error::AppError, state::AppState};
 
 pub async fn logout(
     State(state): State<AppState>,
-    AuthenticatedToken(token): AuthenticatedToken,
+    AuthenticatedToken { token, .. }: AuthenticatedToken,
 ) -> Result<Json<serde_json::Value>, AppError> {
     state.tokens.lock().unwrap().remove(&token);
     Ok(Json(json!("OK")))
