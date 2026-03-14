@@ -12,5 +12,5 @@ services:
     build: ./web
     image: r2-web
   be:
-    build: ./be-demo
-    image: r2-be-demo
+    build: ./be-low-level
+    image: r2-be-low-level
