@@ -12,6 +12,23 @@ pub async fn get_wins(conn: &mut MultiplexedConnection) -> Result<i64, AppError>
     Ok(val.unwrap_or(0))
 }
 
+/// Seeds the Redis win counter from the DB on startup, only if the key doesn't already exist.
+/// This ensures the counter is correct after a Redis restart mid-day.
+pub async fn seed_wins(conn: &mut MultiplexedConnection, count: i64) -> Result<(), AppError> {
+    let key = wins_key();
+    let _: Option<String> = conn
+        .set_options(
+            &key,
+            count,
+            redis::SetOptions::default()
+                .conditional_set(redis::ExistenceCheck::NX)
+                .with_expiration(redis::SetExpiry::EX(48 * 3600)),
+        )
+        .await
+        .map_err(|_| AppError::Internal)?;
+    Ok(())
+}
+
 pub async fn increment_wins(conn: &mut MultiplexedConnection) -> Result<(), AppError> {
     let key = wins_key();
     let count: i64 = conn
