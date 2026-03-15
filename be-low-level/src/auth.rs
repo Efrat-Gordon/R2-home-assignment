@@ -27,7 +27,7 @@ impl FromRequestParts<AppState> for AuthenticatedToken {
         let email = state
             .tokens
             .lock()
-            .unwrap()
+            .map_err(|_| AppError::AccessDenied)?
             .get(&token)
             .cloned()
             .ok_or(AppError::AccessDenied)?;

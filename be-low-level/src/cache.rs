@@ -1,10 +1,10 @@
-use chrono::Local;
+use chrono::Utc;
 use redis::{aio::MultiplexedConnection, AsyncCommands};
 
 use crate::error::AppError;
 
 fn wins_key() -> String {
-    format!("daily:wins:{}", Local::now().date_naive())
+    format!("daily:wins:{}", Utc::now().date_naive())
 }
 
 pub async fn get_wins(conn: &mut MultiplexedConnection) -> Result<i64, AppError> {

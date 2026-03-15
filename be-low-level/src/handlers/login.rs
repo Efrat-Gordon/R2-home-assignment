@@ -26,7 +26,7 @@ pub async fn login(
         .await?
         .ok_or(AppError::InvalidCredentials)?;
 
-    let password = body.password.clone();
+    let password = body.password;
     tokio::task::spawn_blocking(move || -> Result<(), AppError> {
         let parsed = PasswordHash::new(&hash).map_err(|_| AppError::Internal)?;
         Argon2::default()
@@ -40,7 +40,7 @@ pub async fn login(
     state
         .tokens
         .lock()
-        .unwrap()
+        .map_err(|_| AppError::Internal)?
         .insert(token.clone(), body.email);
 
     Ok(Json(TokenResponse { token }))

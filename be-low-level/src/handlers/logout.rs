@@ -16,6 +16,6 @@ pub async fn logout(
     State(state): State<AppState>,
     AuthenticatedToken { token, .. }: AuthenticatedToken,
 ) -> Result<Json<serde_json::Value>, AppError> {
-    state.tokens.lock().unwrap().remove(&token);
+    state.tokens.lock().map_err(|_| AppError::Internal)?.remove(&token);
     Ok(Json(json!("OK")))
 }
